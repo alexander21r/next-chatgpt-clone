@@ -5,7 +5,9 @@ import { PaperAirplaneIcon } from "@heroicons/react/24/solid";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { useSession } from "next-auth/react";
 import { FormEvent, useState } from "react";
-import toast from "react-hot-toast/headless";
+import ModelSelection from "./ModelSelection";
+import useSWR from "swr";
+import { toast } from "react-toastify";
 
 type Props = {
   chatId: string;
@@ -14,11 +16,15 @@ type Props = {
 function ChatInput({ chatId }: Props) {
   const [prompt, setPrompt] = useState("");
   const { data: session } = useSession();
+  const [hasResponse, setHasResponse] = useState(false);
 
-  const model = "davinci";
+  const { data: model } = useSWR("model", {
+    fallbackData: "text-davinci-003",
+  });
 
   const sendMessage = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setHasResponse(true);
 
     if (!prompt) return;
 
@@ -49,25 +55,29 @@ function ChatInput({ chatId }: Props) {
       message
     );
 
-    const notification = toast.loading("ChatGPT is thinking");
-
-    await fetch("/api/askQestuion", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        prompt: input,
-        chatId,
-        model,
-        session,
+    await toast.promise(
+      fetch("/api/askQuestion", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          prompt: input,
+          chatId,
+          model,
+          session,
+        }),
       }),
-    }).then(() => {
-      toast.success("ChatGPT has responded", {
-        id: notification,
-      });
-    });
+      {
+        pending: "ChatGPT is thinking...",
+        success: "ChatGPT replied!",
+        error: "ChatGPT failed to reply",
+      }
+    );
+    setHasResponse(false);
   };
+
+
 
   return (
     <div className="bg-gray-700/50 text-gray-400 rounded-lg text-sm ">
@@ -76,18 +86,20 @@ function ChatInput({ chatId }: Props) {
           value={prompt}
           type="text"
           disabled={!session}
-          placeholder="Type your message here..."
+          placeholder="Type your message h ere..."
           className="p-5 space-x-5 flex-1 bg-transparent outline-none disabled:cursor-not-allowed disabled:text-gray-300"
           onChange={(e) => setPrompt(e.target.value)}
         />
         <button
           type="submit"
-          disabled={!session || !prompt}
+          disabled={!session || !prompt || hasResponse}
           className="bg-[#11A37F] hover:opacity-50 text-white font-bold px-4 py-2 rounded disabled:bg-gray-300 disabled:cursor-not-allowed">
           <PaperAirplaneIcon className="h-4 w-4 -rotate-45" />
         </button>
       </form>
-      <div>Modelselction</div>
+      <div className="md:hidden">
+        <ModelSelection />
+      </div>
     </div>
   );
 }
