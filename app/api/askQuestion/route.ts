@@ -21,9 +21,12 @@ export async function POST(req: Request) {
   }
   const response = await query(prompt, model);
 
+  const currentTimestamp = admin.firestore.Timestamp.now();
+  const newTimestamp = currentTimestamp.toMillis() + 3000;
+
   const message: Message = {
     text: response || "Sorry, I don't know the answer to that question.",
-    createdAt: admin.firestore.Timestamp.now(),
+    createdAt: admin.firestore.Timestamp.fromMillis(newTimestamp),
     user: {
       _id: "Chatgpt",
       name: "Chatgpt",

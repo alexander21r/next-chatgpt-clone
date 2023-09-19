@@ -7,9 +7,14 @@ type Option = {
 };
 
 export async function GET() {
-  const models = await openai.models.list().then((res: any) => res.data);
+  const models = await openai.models.list().then((res) => res.data);
 
-  const modelOptions = models.map((model: any) => ({
+  const filteredModels = models.filter((model) =>
+    model.id.startsWith("gpt-3.5")
+  );
+  const skippedModels = filteredModels.slice(2);
+
+  const modelOptions = skippedModels.map((model) => ({
     value: model.id,
     label: model.id,
   }));

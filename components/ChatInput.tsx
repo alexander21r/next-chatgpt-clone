@@ -19,7 +19,7 @@ function ChatInput({ chatId }: Props) {
   const [hasResponse, setHasResponse] = useState(false);
 
   const { data: model } = useSWR("model", {
-    fallbackData: "text-davinci-003",
+    fallbackData: "gpt-3.5-turbo",
   });
 
   const sendMessage = async (e: FormEvent<HTMLFormElement>) => {
@@ -76,8 +76,6 @@ function ChatInput({ chatId }: Props) {
     );
     setHasResponse(false);
   };
-
-
 
   return (
     <div className="bg-gray-700/50 text-gray-400 rounded-lg text-sm ">

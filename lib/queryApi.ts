@@ -10,7 +10,7 @@ const query = async (prompt: string, model: string) => {
       frequency_penalty: 0,
       presence_penalty: 0,
     })
-    .then((res: any) => res.data.choices[0].text)
+    .then((res: any) => res.choices[0].message.content)
     .catch(
       (err) =>
         `ChatGPT was unable to find a response to your question.${err.message}`
