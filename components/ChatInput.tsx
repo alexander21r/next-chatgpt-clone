@@ -84,7 +84,7 @@ function ChatInput({ chatId }: Props) {
           value={prompt}
           type="text"
           disabled={!session}
-          placeholder="Type your message h ere..."
+          placeholder="Type your message here..."
           className="p-5 space-x-5 flex-1 bg-transparent outline-none disabled:cursor-not-allowed disabled:text-gray-300"
           onChange={(e) => setPrompt(e.target.value)}
         />
